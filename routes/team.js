@@ -10,7 +10,7 @@ const {
   getLeaderboard
 } = require('../controllers/teamController');
 
-// All team routes require authentication
+
 router.use(verifyToken);
 router.use(verifyTeam);
 

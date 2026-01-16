@@ -10,7 +10,7 @@ const {
   getLeaderboard
 } = require('../controllers/adminController');
 
-// All admin routes require authentication
+
 router.use(verifyToken);
 router.use(verifyAdmin);
 

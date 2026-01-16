@@ -7,7 +7,7 @@ const seedAdmin = async () => {
   try {
     await connectDB();
 
-    // Check if admin already exists
+  
     const existingAdmin = await Admin.findOne({ username: process.env.ADMIN_USERNAME || 'admin' });
     
     if (existingAdmin) {
@@ -15,7 +15,6 @@ const seedAdmin = async () => {
       process.exit(0);
     }
 
-    // Create default admin
     const admin = await Admin.create({
       username: process.env.ADMIN_USERNAME || 'admin',
       password: process.env.ADMIN_PASSWORD || 'admin123',
