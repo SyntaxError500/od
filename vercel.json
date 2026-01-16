@@ -5,15 +5,11 @@
       "src": "server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["dist/**"]
+        "includeFiles": ["public/**"]
       }
     }
   ],
   "routes": [
-    {
-      "src": "/(.*)\\.(css|js|png|jpg|svg|ico|woff|woff2)",
-      "dest": "/$1.$2"
-    },
     {
       "src": "/(.*)",
       "dest": "server.js"

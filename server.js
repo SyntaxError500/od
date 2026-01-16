@@ -40,12 +40,25 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// Static files
-app.use(express.static('public'));
+// Static files - use absolute path for serverless compatibility
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve admin panel
 app.get('/admin.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Serve static files explicitly for CSS/JS
+app.get('/admin.css', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.css'), {
+    headers: { 'Content-Type': 'text/css' }
+  });
+});
+
+app.get('/admin.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.js'), {
+    headers: { 'Content-Type': 'application/javascript' }
+  });
 });
 
 // API Routes
