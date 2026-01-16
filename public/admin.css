@@ -1,0 +1,274 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(74, 144, 226, 0.1);
+    border-radius: 15px;
+    border: 2px solid #4a90e2;
+}
+
+.header h1 {
+    font-size: 2.5em;
+    color: #4a90e2;
+    margin-bottom: 10px;
+}
+
+.login-section {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background: #16213e;
+    border-radius: 15px;
+    border: 2px solid #4a90e2;
+}
+
+.login-section input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    background: #0f1419;
+    border: 1px solid #4a90e2;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+}
+
+.login-section button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: #4a90e2;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.login-section button:hover {
+    background: #357abd;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: 12px 24px;
+    background: #16213e;
+    border: 2px solid #4a90e2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab.active {
+    background: #4a90e2;
+    color: #fff;
+}
+
+.tab:hover {
+    background: #357abd;
+}
+
+.tab-content {
+    display: none;
+    background: #16213e;
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid #4a90e2;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.team-card {
+    background: #0f1419;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border-left: 4px solid #4a90e2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.team-info h3 {
+    color: #4a90e2;
+    margin-bottom: 5px;
+}
+
+.team-info p {
+    color: #999;
+    font-size: 14px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-approve {
+    background: #27ae60;
+    color: #fff;
+}
+
+.btn-approve:hover {
+    background: #229954;
+}
+
+.btn-reject {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-reject:hover {
+    background: #c0392b;
+}
+
+.form-group {
+    margin: 15px 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #4a90e2;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    background: #0f1419;
+    border: 1px solid #4a90e2;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.leaderboard-item {
+    background: #0f1419;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 4px solid #4a90e2;
+}
+
+.rank {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4a90e2;
+    width: 50px;
+}
+
+.team-name {
+    flex: 1;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.team-score {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+.qr-code-form {
+    background: #0f1419;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #4a90e2;
+}
+
+.qr-code-form h4 {
+    color: #4a90e2;
+    margin-bottom: 10px;
+}
+
+.btn-remove {
+    background: #e74c3c;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-add {
+    background: #27ae60;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.message {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    display: none;
+}
+
+.message.success {
+    background: #27ae60;
+    display: block;
+}
+
+.message.error {
+    background: #e74c3c;
+    display: block;
+}
+
+.btn-logout {
+    margin-top: 10px;
+    background: #e74c3c;
+}
+
+.btn-upload-all {
+    margin-top: 20px;
+}
+

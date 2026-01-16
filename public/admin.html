@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odin's Eye - Admin Panel</title>
+    <link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+    <div class="container">
+        <div id="loginSection" class="login-section">
+            <h2>Admin Login</h2>
+            <input type="text" id="adminUsername" placeholder="Username" value="admin">
+            <input type="password" id="adminPassword" placeholder="Password" value="admin123">
+            <button>Login</button>
+        </div>
+
+        <div id="adminPanel" style="display: none;">
+            <div class="header">
+                <h1>Odin's Eye - Admin Panel</h1>
+                <p>Manage teams, questions, and QR codes</p>
+                <button class="btn btn-logout">Logout</button>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="pending">Pending Teams</div>
+                <div class="tab" data-tab="teams">All Teams</div>
+                <div class="tab" data-tab="hints">Location Hints</div>
+                <div class="tab" data-tab="qrcodes">QR Codes</div>
+                <div class="tab" data-tab="leaderboard">Leaderboard</div>
+            </div>
+
+            <!-- Pending Teams Tab -->
+            <div id="pending" class="tab-content active">
+                <h2>Pending Team Approvals</h2>
+                <div id="pendingTeamsList"></div>
+            </div>
+
+            <!-- All Teams Tab -->
+            <div id="teams" class="tab-content">
+                <h2>All Teams</h2>
+                <div id="allTeamsList"></div>
+            </div>
+
+            <!-- Location Hints Tab -->
+            <div id="hints" class="tab-content">
+                <h2>Upload Location Hints</h2>
+                <div class="form-group">
+                    <label>Round Number</label>
+                    <input type="number" id="roundNumber" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Location Hints (one per line)</label>
+                    <textarea id="locationHints" placeholder="Enter location hints, one per line..."></textarea>
+                </div>
+                <button class="btn btn-add">Upload Hints</button>
+            </div>
+
+            <!-- QR Codes Tab -->
+            <div id="qrcodes" class="tab-content">
+                <h2>Manage QR Codes</h2>
+                <div id="qrcodesList"></div>
+                <button class="btn btn-add">Add QR Code</button>
+                <div id="newQRCodes"></div>
+                <button class="btn btn-add btn-upload-all">Upload All QR Codes</button>
+            </div>
+
+            <!-- Leaderboard Tab -->
+            <div id="leaderboard" class="tab-content">
+                <h2>Leaderboard</h2>
+                <div id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin.js"></script>
+</body>
+</html>
+
+
