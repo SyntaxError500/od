@@ -17,7 +17,7 @@ import QuestionScreen from './screens/QuestionScreen';
 import HomeScreen from './screens/HomeScreen';
 import AboutScreen from './screens/AboutScreen';
 import { AuthContext } from './context/AuthContext';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL, API_HOST } from './config';
 import { useFonts } from 'expo-font';
 
 const Stack = createStackNavigator();
@@ -130,6 +130,21 @@ export default function App() {
 
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  // Debug: check backend connectivity on app start
+  useEffect(() => {
+    const ping = async () => {
+      try {
+        const res = await fetch(`${API_HOST}/health`);
+        if (!res.ok) {
+          console.warn('Health check failed:', res.status);
+        }
+      } catch (e) {
+        console.warn('Cannot reach API host:', API_HOST, e?.message);
+      }
+    };
+    ping();
   }, []);
 
   const authContext = {

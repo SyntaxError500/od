@@ -18,7 +18,7 @@ router.get('/location-hints/:round', getLocationHints);
 router.get('/rounds', getRounds);
 router.post('/scan-qr', scanQR);
 router.post('/submit-answer', submitAnswer);
-router.get('/team/score', getTeamScore);
+router.get('/score', getTeamScore);
 router.get('/leaderboard', getLeaderboard);
 
 module.exports = router;

@@ -42,7 +42,13 @@ export default function LoginScreen({ navigation }) {
       }
     } catch (error) {
       const message =
-        error.response?.data?.error || 'Login failed. Please try again.';
+        error.response?.data?.error || error.message || 'Login failed. Please try again.';
+      console.warn('Login error:', {
+        url: `${API_BASE_URL}/login`,
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
       Alert.alert('Login Failed', message);
     } finally {
       setLoading(false);

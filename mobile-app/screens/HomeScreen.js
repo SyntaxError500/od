@@ -33,7 +33,7 @@ export default function HomeScreen({ navigation }) {
           await forceLogout('Your session has been invalidated.');
         }
       }
-      console.error('Error fetching score:', error);
+      console.error('Error fetching score:', error.response?.status, error.response?.data);
     }
   };
 

@@ -12,10 +12,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 const coordinators = [
-  { name: 'Mudit Choudhary', phone: '1234567890' },
-  { name: 'Sirjan Singh', phone: '1234567890' },
-  { name: 'Vibhu Bhardwaj', phone: '1234567890' },
-  { name: 'Sunidhi Avasthi', phone: '1234567890' }
+  { name: 'Mudit Choudhary', phone: '9672467580' },
+  { name: 'Sirjan Singh', phone: '6239709755' },
+  { name: 'Vibhu Bhardwaj', phone: '9079660589' },
+  { name: 'Sunidhi Avasthi', phone: '9829756507' }
 ];
 
 const developer = {
