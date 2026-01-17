@@ -53,7 +53,7 @@ export default function QuestionScreen({ route, navigation }) {
     try {
       const token = await AsyncStorage.getItem('userToken');
       const response = await axios.post(
-        `${API_BASE_URL}/submit-answer`,
+        `${API_BASE_URL}/team/submit-answer`,
         { qrValue, answer: answer.trim() || '' },
         {
           headers: { Authorization: `Bearer ${token}` }

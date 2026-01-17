@@ -33,7 +33,7 @@ export default function LocationHintsScreen() {
   const fetchRounds = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
-      const response = await axios.get(`${API_BASE_URL}/rounds`, {
+      const response = await axios.get(`${API_BASE_URL}/team/rounds`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRounds(response.data.rounds || []);
@@ -54,7 +54,7 @@ export default function LocationHintsScreen() {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('userToken');
-      const response = await axios.get(`${API_BASE_URL}/location-hints/${round}`, {
+      const response = await axios.get(`${API_BASE_URL}/team/location-hints/${round}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setHints(response.data.hints || []);

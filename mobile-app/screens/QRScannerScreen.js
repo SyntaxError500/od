@@ -53,7 +53,7 @@ export default function QRScannerScreen({ navigation }) {
 
       const token = await AsyncStorage.getItem('userToken');
       const response = await axios.post(
-        `${API_BASE_URL}/scan-qr`,
+        `${API_BASE_URL}/team/scan-qr`,
         { qrValue },
         {
           headers: { Authorization: `Bearer ${token}` }

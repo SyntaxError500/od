@@ -62,9 +62,12 @@ app.get('/admin.js', (req, res) => {
 });
 
 // API Routes
+// Auth endpoints remain under /api
 app.use('/api', authRoutes);
+// Admin endpoints under /api/admin
 app.use('/api/admin', adminRoutes);
-app.use('/api', teamRoutes);
+// Team endpoints are scoped under /api/team to avoid intercepting auth routes
+app.use('/api/team', teamRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

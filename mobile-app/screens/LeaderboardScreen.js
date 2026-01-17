@@ -27,7 +27,7 @@ export default function LeaderboardScreen() {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('userToken');
-      const response = await axios.get(`${API_BASE_URL}/leaderboard`, {
+      const response = await axios.get(`${API_BASE_URL}/team/leaderboard`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTeams(response.data.teams || []);
