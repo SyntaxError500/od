@@ -31,9 +31,14 @@ export default function LoginScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/login`, {
+      const loginUrl = `${API_BASE_URL}/login`;
+      console.log('[LoginScreen] Posting to:', loginUrl);
+      
+      const response = await axios.post(loginUrl, {
         username,
         password,
+      }, {
+        timeout: 10000, // 10 second timeout
       });
 
       if (response.data.token) {
@@ -41,14 +46,18 @@ export default function LoginScreen({ navigation }) {
         Alert.alert('Success', 'Logged in successfully!');
       }
     } catch (error) {
-      const message =
-        error.response?.data?.error || error.message || 'Login failed. Please try again.';
-      console.warn('Login error:', {
+      const status = error.response?.status;
+      const errorData = error.response?.data;
+      const message = errorData?.error || error.message || 'Login failed. Please try again.';
+      
+      console.error('[LoginScreen] Login failed:', {
         url: `${API_BASE_URL}/login`,
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message
+        status,
+        data: errorData,
+        message: error.message,
+        code: error.code
       });
+      
       Alert.alert('Login Failed', message);
     } finally {
       setLoading(false);
