@@ -48,6 +48,14 @@ const teamSchema = new mongoose.Schema({
     default: 0,
     min: 0
   },
+  activeToken: {
+    type: String,
+    default: null
+  },
+  lastLoginDeviceId: {
+    type: String,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -53,6 +53,12 @@ const verifyTeam = async (req, res, next) => {
     if (!team.approved) {
       return res.status(403).json({ error: 'Team not approved yet' });
     }
+
+    // Verify that the token matches the active token
+    const token = req.headers.authorization?.split(' ')[1];
+    if (team.activeToken !== token) {
+      return res.status(403).json({ error: 'Your session has been invalidated. Please login again.' });
+    }
     
     req.team = team;
     next();

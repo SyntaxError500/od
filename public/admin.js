@@ -127,12 +127,44 @@ async function loadAllTeams() {
                 <div class="team-info">
                     <h3>${team.teamName} ${team.approved ? '✓' : '(Pending)'}</h3>
                     <p>Leader: ${team.leaderName} | Score: ${team.score} points</p>
+                    <p>Status: ${team.activeToken ? '🟢 Logged In' : '🔴 Logged Out'}</p>
                 </div>
+                <button class="btn btn-logout-team" data-team-id="${team._id}" data-team-name="${team.teamName}">Force Logout</button>
             `;
+            const logoutBtn = card.querySelector('.btn-logout-team');
+            logoutBtn.addEventListener('click', () => forceLogoutTeam(team._id, team.teamName));
             listEl.appendChild(card);
         });
     } catch (error) {
         showMessage('Error loading teams', 'error');
+    }
+}
+
+async function forceLogoutTeam(teamId, teamName) {
+    if (!confirm(`Are you sure you want to force logout team "${teamName}"?`)) {
+        return;
+    }
+
+    try {
+        console.log('Attempting to force logout team:', teamId, teamName);
+        const response = await fetch(`${API_BASE_URL}/admin/force-logout/${teamId}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        const data = await response.json();
+        console.log('Response status:', response.status);
+        console.log('Response data:', data);
+        
+        if (response.ok) {
+            showMessage(`Team "${teamName}" has been force logged out`, 'success');
+            loadAllTeams();
+        } else {
+            showMessage(data.error || `Error forcing logout (${response.status})`, 'error');
+        }
+    } catch (error) {
+        console.error('Force logout error:', error);
+        showMessage('Error forcing logout: ' + error.message, 'error');
     }
 }
 

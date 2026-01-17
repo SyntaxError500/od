@@ -8,11 +8,14 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  ImageBackground,
+  Image
 } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { API_BASE_URL } from '../config';
 import axios from 'axios';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -30,7 +33,7 @@ export default function LoginScreen({ navigation }) {
     try {
       const response = await axios.post(`${API_BASE_URL}/login`, {
         username,
-        password
+        password,
       });
 
       if (response.data.token) {
@@ -38,7 +41,8 @@ export default function LoginScreen({ navigation }) {
         Alert.alert('Success', 'Logged in successfully!');
       }
     } catch (error) {
-      const message = error.response?.data?.error || 'Login failed. Please try again.';
+      const message =
+        error.response?.data?.error || 'Login failed. Please try again.';
       Alert.alert('Login Failed', message);
     } finally {
       setLoading(false);
@@ -46,63 +50,94 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <ImageBackground
+      source={require('../assets/download.jpeg')}
       style={styles.container}
+      resizeMode="cover"
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Odin's Eye</Text>
-          <Text style={styles.subtitle}>Astronomy Treasure Hunt</Text>
+      <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.content}>
+              <Image
+                source={require('../assets/odins-eye.png')}
+                style={styles.logoImage}
+              />
+              <Text style={styles.title}>Odin's Eye</Text>
+              <Text style={styles.subtitle}>Astronomy Club</Text>
 
-          <View style={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder="Username"
-              placeholderTextColor="#999"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-            />
+              <View style={styles.form}>
+                <View style={styles.inputRow}>
+                  <Ionicons
+                    name="mail-outline"
+                    size={24}
+                    color="#aaa"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Username"
+                    placeholderTextColor="#aaa"
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize="none"
+                  />
+                </View>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+                <View style={styles.inputRow}>
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={24}
+                    color="#aaa"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    placeholderTextColor="#aaa"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                  />
+                </View>
 
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={handleLogin}
-              disabled={loading}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? 'Logging in...' : 'Login'}
-              </Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, loading && styles.buttonDisabled]}
+                  onPress={handleLogin}
+                  disabled={loading}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? 'Logging in...' : 'Login'}
+                  </Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.linkButton}
-              onPress={() => navigation.navigate('Register')}
-            >
-              <Text style={styles.linkText}>
-                Don't have an account? Register
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+                <TouchableOpacity
+                  style={styles.linkButton}
+                  onPress={() => navigation.navigate('Register')}
+                >
+                  <Text style={styles.linkText}>
+                    Don't have an account? Register
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
   },
   scrollContent: {
     flexGrow: 1,
@@ -112,11 +147,17 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
   },
+  logoImage: {
+    width: 220,
+    height: 220,
+  },
   title: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: '#4a90e2',
+    color: '#c6cfd9ff',
+    fontFamily:'Nebula',
     marginBottom: 10,
+    letterSpacing: 1.2
   },
   subtitle: {
     fontSize: 18,
@@ -127,17 +168,32 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
   },
-  input: {
-    backgroundColor: '#16213e',
-    borderRadius: 10,
-    padding: 15,
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(26,26,26,0.4)',
+    borderColor: '#333333',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     marginBottom: 15,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
+  input: {
+    flex: 1,
     color: '#fff',
     fontSize: 16,
+    paddingVertical: 2,
+    paddingHorizontal: 0,
   },
   button: {
-    backgroundColor: '#4a90e2',
-    borderRadius: 10,
+    backgroundColor: 'rgba(26,26,26,0.4)',
+    borderColor: '#333333',
+    borderWidth: 1,
+    borderRadius: 25,
     padding: 15,
     alignItems: 'center',
     marginTop: 10,
@@ -159,5 +215,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-

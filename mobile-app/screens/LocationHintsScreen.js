@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  RefreshControl
+  RefreshControl,
+  ImageBackground
 } from 'react-native';
 import { API_BASE_URL } from '../config';
+import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LocationHintsScreen() {
+  const { forceLogout } = useContext(AuthContext);
   const [rounds, setRounds] = useState([]);
   const [selectedRound, setSelectedRound] = useState(null);
   const [hints, setHints] = useState([]);
@@ -38,6 +41,11 @@ export default function LocationHintsScreen() {
         setSelectedRound(response.data.rounds[0]);
       }
     } catch (error) {
+      if (error.response?.status === 403 && error.response?.data?.error?.includes('session')) {
+        if (forceLogout) {
+          await forceLogout('Your session has been invalidated.');
+        }
+      }
       console.error('Error fetching rounds:', error);
     }
   };
@@ -51,6 +59,11 @@ export default function LocationHintsScreen() {
       });
       setHints(response.data.hints || []);
     } catch (error) {
+      if (error.response?.status === 403 && error.response?.data?.error?.includes('session')) {
+        if (forceLogout) {
+          await forceLogout('Your session has been invalidated.');
+        }
+      }
       console.error('Error fetching hints:', error);
       setHints([]);
     } finally {
@@ -59,91 +72,111 @@ export default function LocationHintsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.roundSelector}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {rounds.map((round) => (
-            <TouchableOpacity
-              key={round}
-              style={[
-                styles.roundButton,
-                selectedRound === round && styles.roundButtonActive
-              ]}
-              onPress={() => setSelectedRound(round)}
-            >
-              <Text
+    <ImageBackground
+      source={require('../assets/home.jpeg')}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <View style={styles.roundSelector}>
+          <Text style={styles.roundLabel}>Select Round</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {rounds.map((round) => (
+              <TouchableOpacity
+                key={round}
                 style={[
-                  styles.roundButtonText,
-                  selectedRound === round && styles.roundButtonTextActive
+                  styles.roundButton,
+                  selectedRound === round && styles.roundButtonActive
                 ]}
+                onPress={() => setSelectedRound(round)}
               >
-                Round {round}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+                <Text
+                  style={[
+                    styles.roundButtonText,
+                    selectedRound === round && styles.roundButtonTextActive
+                  ]}
+                >
+                  Round {round}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-      <ScrollView
-        style={styles.hintsContainer}
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={() => selectedRound && fetchHints(selectedRound)}
-          />
-        }
-      >
-        {selectedRound ? (
-          hints.length > 0 ? (
-            hints.map((hint, index) => (
-              <View key={index} style={styles.hintCard}>
-                <Text style={styles.hintNumber}>Location {index + 1}</Text>
-                <Text style={styles.hintText}>{hint}</Text>
+        <ScrollView
+          style={styles.hintsContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={() => selectedRound && fetchHints(selectedRound)}
+            />
+          }
+        >
+          {selectedRound ? (
+            hints.length > 0 ? (
+              hints.map((hint, index) => (
+                <View key={index} style={styles.hintCard}>
+                  <Text style={styles.hintNumber}>Location {index + 1}</Text>
+                  <Text style={styles.hintText}>{hint}</Text>
+                </View>
+              ))
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                  No location hints available for this round yet.
+                </Text>
               </View>
-            ))
+            )
           ) : (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                No location hints available for this round yet.
+                Select a round to view location hints.
               </Text>
             </View>
-          )
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              Select a round to view location hints.
-            </Text>
-          </View>
-        )}
-      </ScrollView>
-    </View>
+          )}
+        </ScrollView>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
   },
   roundSelector: {
-    backgroundColor: '#16213e',
-    paddingVertical: 15,
-    paddingHorizontal: 10,
+    backgroundColor: 'rgba(26,26,26,0.55)',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#0f1419',
+    borderBottomColor: '#333333',
+  },
+  roundLabel: {
+    color: '#c6cfd9',
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 10,
+    letterSpacing: 0.5,
   },
   roundButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: '#0f1419',
+    borderRadius: 18,
+    backgroundColor: 'rgba(26,26,26,0.65)',
     marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#333333',
   },
   roundButtonActive: {
-    backgroundColor: '#4a90e2',
+    backgroundColor: '#e9141c37',
+    borderColor: '#4e6279ff',
   },
   roundButtonText: {
-    color: '#999',
+    color: '#667582ff',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -152,13 +185,15 @@ const styles = StyleSheet.create({
   },
   hintsContainer: {
     flex: 1,
-    padding: 15,
+    padding: 18,
   },
   hintCard: {
-    backgroundColor: '#16213e',
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 15,
+    backgroundColor: 'rgba(26,26,26,0.55)',
+    borderRadius: 14,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#333333',
     borderLeftWidth: 4,
     borderLeftColor: '#4a90e2',
   },
@@ -166,11 +201,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#4a90e2',
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   hintText: {
     fontSize: 16,
-    color: '#fff',
+    color: '#dfe6ef',
     lineHeight: 24,
   },
   emptyContainer: {
@@ -181,7 +216,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
+    color: '#9fb0c0',
     textAlign: 'center',
   },
 });

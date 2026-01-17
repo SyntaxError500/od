@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -7,17 +7,31 @@ import {
   Alert,
   Dimensions
 } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Camera } from 'expo-camera';
 import { API_BASE_URL } from '../config';
+import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
 export default function QRScannerScreen({ navigation }) {
-  const [permission, requestPermission] = useCameraPermissions();
+  const { forceLogout } = useContext(AuthContext);
+  const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.getCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  const requestPermission = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    setHasPermission(status === 'granted');
+  };
 
   const handleBarCodeScanned = async ({ data }) => {
     if (scanned || loading) return;
@@ -58,8 +72,15 @@ export default function QRScannerScreen({ navigation }) {
         });
       }
     } catch (error) {
-      const message = error.response?.data?.error || 'Error scanning QR code';
-      Alert.alert('Scan Failed', message);
+      // Check if session was invalidated
+      if (error.response?.status === 403 && error.response?.data?.error?.includes('session')) {
+        if (forceLogout) {
+          await forceLogout('Your session has been invalidated.');
+        }
+      } else {
+        const message = error.response?.data?.error || 'Error scanning QR code';
+        Alert.alert('Scan Failed', message);
+      }
     } finally {
       setLoading(false);
       // Reset scanned after 2 seconds to allow re-scanning
@@ -67,7 +88,7 @@ export default function QRScannerScreen({ navigation }) {
     }
   };
 
-  if (!permission) {
+  if (hasPermission === null) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Requesting camera permission...</Text>
@@ -75,7 +96,7 @@ export default function QRScannerScreen({ navigation }) {
     );
   }
 
-  if (!permission.granted) {
+  if (!hasPermission) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Camera permission is required to scan QR codes</Text>
@@ -91,13 +112,11 @@ export default function QRScannerScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <CameraView
+      <Camera
         style={styles.camera}
-        facing="back"
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ['qr'],
-        }}
+        type={Camera.Constants.Type.back}
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        barCodeTypes={['qr']}
       >
         <View style={styles.overlay}>
           <View style={styles.scanArea}>
@@ -113,7 +132,7 @@ export default function QRScannerScreen({ navigation }) {
             <Text style={styles.loadingText}>Processing...</Text>
           )}
         </View>
-      </CameraView>
+      </Camera>
     </View>
   );
 }

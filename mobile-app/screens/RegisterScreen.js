@@ -8,7 +8,8 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  ImageBackground
 } from 'react-native';
 import { API_BASE_URL } from '../config';
 import axios from 'axios';
@@ -53,89 +54,100 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <ImageBackground
+      source={require('../assets/download.jpeg')}
       style={styles.container}
+      resizeMode="cover"
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Register Your Team</Text>
-          <Text style={styles.subtitle}>Team Leader Registration</Text>
+      <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.content}>
+              <Text style={styles.title}>Register Your Team</Text>
+              <Text style={styles.subtitle}>Team Leader Registration</Text>
 
-          <View style={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder="Team Name *"
-              placeholderTextColor="#999"
-              value={formData.teamName}
-              onChangeText={(text) => setFormData({ ...formData, teamName: text })}
-            />
+              <View style={styles.form}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Team Name *"
+                  placeholderTextColor="#999"
+                  value={formData.teamName}
+                  onChangeText={(text) => setFormData({ ...formData, teamName: text })}
+                />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Leader Name *"
-              placeholderTextColor="#999"
-              value={formData.leaderName}
-              onChangeText={(text) => setFormData({ ...formData, leaderName: text })}
-            />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Leader Name *"
+                  placeholderTextColor="#999"
+                  value={formData.leaderName}
+                  onChangeText={(text) => setFormData({ ...formData, leaderName: text })}
+                />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Username *"
-              placeholderTextColor="#999"
-              value={formData.username}
-              onChangeText={(text) => setFormData({ ...formData, username: text })}
-              autoCapitalize="none"
-            />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Username *"
+                  placeholderTextColor="#999"
+                  value={formData.username}
+                  onChangeText={(text) => setFormData({ ...formData, username: text })}
+                  autoCapitalize="none"
+                />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Password *"
-              placeholderTextColor="#999"
-              value={formData.password}
-              onChangeText={(text) => setFormData({ ...formData, password: text })}
-              secureTextEntry
-            />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password *"
+                  placeholderTextColor="#999"
+                  value={formData.password}
+                  onChangeText={(text) => setFormData({ ...formData, password: text })}
+                  secureTextEntry
+                />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Email (optional)"
-              placeholderTextColor="#999"
-              value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email (optional)"
+                  placeholderTextColor="#999"
+                  value={formData.email}
+                  onChangeText={(text) => setFormData({ ...formData, email: text })}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Phone (optional)"
-              placeholderTextColor="#999"
-              value={formData.phone}
-              onChangeText={(text) => setFormData({ ...formData, phone: text })}
-              keyboardType="phone-pad"
-            />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Phone (optional)"
+                  placeholderTextColor="#999"
+                  value={formData.phone}
+                  onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                  keyboardType="phone-pad"
+                />
 
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={handleRegister}
-              disabled={loading}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? 'Registering...' : 'Register'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+                <TouchableOpacity
+                  style={[styles.button, loading && styles.buttonDisabled]}
+                  onPress={handleRegister}
+                  disabled={loading}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? 'Registering...' : 'Register'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
   },
   scrollContent: {
     flexGrow: 1,
@@ -147,7 +159,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#4a90e2',
+    color: '#c6cfd9ff',
     marginBottom: 10,
     marginTop: 20,
   },
@@ -161,16 +173,20 @@ const styles = StyleSheet.create({
     maxWidth: 400,
   },
   input: {
-    backgroundColor: '#16213e',
-    borderRadius: 10,
+    backgroundColor: 'rgba(26,26,26,0.4)',
+    borderColor: '#333333',
+    borderWidth: 1,
+    borderRadius: 12,
     padding: 15,
     marginBottom: 15,
     color: '#fff',
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#4a90e2',
-    borderRadius: 10,
+     backgroundColor: 'rgba(26,26,26,0.4)',
+    borderColor: '#333333',
+    borderWidth: 1,
+    borderRadius: 25,
     padding: 15,
     alignItems: 'center',
     marginTop: 10,

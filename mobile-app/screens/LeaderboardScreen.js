@@ -4,7 +4,8 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  RefreshControl
+  RefreshControl,
+  ImageBackground
 } from 'react-native';
 import { API_BASE_URL } from '../config';
 import axios from 'axios';
@@ -14,7 +15,7 @@ import { AuthContext } from '../context/AuthContext';
 export default function LeaderboardScreen() {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { userData } = useContext(AuthContext);
+  const { userData, forceLogout } = useContext(AuthContext);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -31,6 +32,11 @@ export default function LeaderboardScreen() {
       });
       setTeams(response.data.teams || []);
     } catch (error) {
+      if (error.response?.status === 403 && error.response?.data?.error?.includes('session')) {
+        if (forceLogout) {
+          await forceLogout('Your session has been invalidated.');
+        }
+      }
       console.error('Error fetching leaderboard:', error);
     } finally {
       setLoading(false);
@@ -38,9 +44,9 @@ export default function LeaderboardScreen() {
   };
 
   const getRankIcon = (index) => {
-    if (index === 0) return '🥇';
-    if (index === 1) return '🥈';
-    if (index === 2) return '🥉';
+    if (index === 0) return '🏆';
+    if (index === 1) return '🌙';
+    if (index === 2) return '☄️';
     return `${index + 1}.`;
   };
 
@@ -49,11 +55,16 @@ export default function LeaderboardScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Leaderboard</Text>
-        <Text style={styles.headerSubtitle}>Top Teams</Text>
-      </View>
+    <ImageBackground
+      source={require('../assets/home.jpeg')}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Event Leaderboard</Text>
+          <Text style={styles.headerSubtitle}>Odin's Eye: Treasure Hunt</Text>
+        </View>
 
       <ScrollView
         style={styles.list}
@@ -67,17 +78,20 @@ export default function LeaderboardScreen() {
               key={index}
               style={[
                 styles.teamCard,
-                isCurrentTeam(team.teamName) && styles.currentTeamCard
+                index === 0 && styles.goldCard,
+                index === 1 && styles.silverCard,
+                index === 2 && styles.bronzeCard,
               ]}
             >
               <View style={styles.rankContainer}>
-                <Text style={styles.rankIcon}>{getRankIcon(index)}</Text>
+                <Text style={styles.positionNumber}>{index + 1}.</Text>
               </View>
+                <Text style={styles.rankIcon}>{getRankIcon(index)}</Text>
               <View style={styles.teamInfo}>
                 <Text
                   style={[
                     styles.teamName,
-                    isCurrentTeam(team.teamName) && styles.currentTeamName
+                    isCurrentTeam(team.teamName) && styles.highlightTeamName
                   ]}
                 >
                   {team.teamName}
@@ -103,68 +117,95 @@ export default function LeaderboardScreen() {
           </View>
         )}
       </ScrollView>
-    </View>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
   },
   header: {
-    backgroundColor: '#16213e',
-    padding: 20,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: '#4a90e2',
+    borderBottomWidth: 1,
+    borderBottomColor: '#333333',
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: 'bold',
-    color: '#4a90e2',
-    marginBottom: 5,
+    color: '#c6cfd9',
+    marginBottom: 8,
+    letterSpacing: 0.8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#999',
+    color: '#9fb0c0',
+    fontWeight: '500',
   },
   list: {
     flex: 1,
-    padding: 15,
+    padding: 16,
   },
   teamCard: {
     flexDirection: 'row',
-    backgroundColor: '#16213e',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 12,
+    backgroundColor: 'rgba(26,26,26,0.55)',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: '#333333',
+    elevation: 2,
   },
-  currentTeamCard: {
-    borderColor: '#4a90e2',
+  goldCard: {
+    borderColor: '#ffd90084',
     borderWidth: 2,
-    backgroundColor: '#1a2a3a',
+    elevation: 6,
+  },
+  silverCard: {
+    borderColor: '#c0c0c070',
+    borderWidth: 2,
+
+    elevation: 5,
+  },
+  bronzeCard: {
+    borderColor: '#cd80326c',
+    borderWidth: 2,
+    elevation: 4,
   },
   rankContainer: {
-    width: 50,
+    width: 56,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  positionNumber: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#c6cfd9',
+    letterSpacing: 0.5,
   },
   rankIcon: {
     fontSize: 24,
+    marginTop: 2,
   },
   teamInfo: {
     flex: 1,
-    marginLeft: 15,
+    marginLeft: 12,
   },
   teamName: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: 'bold',
+    color: '#dfe6ef',
+    letterSpacing: 0.3,
   },
-  currentTeamName: {
+  highlightTeamName: {
     color: '#4a90e2',
     fontWeight: 'bold',
   },
@@ -172,8 +213,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   score: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 26,
+    fontWeight: '700',
     color: '#4a90e2',
   },
   currentTeamScore: {
@@ -181,8 +222,9 @@ const styles = StyleSheet.create({
   },
   scoreLabel: {
     fontSize: 12,
-    color: '#999',
+    color: '#9fb0c0',
     marginTop: 2,
+    fontWeight: '500',
   },
   emptyContainer: {
     flex: 1,
@@ -192,7 +234,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
+    color: '#9fb0c0',
     textAlign: 'center',
   },
 });

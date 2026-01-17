@@ -1,11 +1,13 @@
+import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-
+import * as SplashScreen from "expo-splash-screen";
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import LocationHintsScreen from './screens/LocationHintsScreen';
@@ -13,8 +15,10 @@ import QRScannerScreen from './screens/QRScannerScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import QuestionScreen from './screens/QuestionScreen';
 import HomeScreen from './screens/HomeScreen';
+import AboutScreen from './screens/AboutScreen';
 import { AuthContext } from './context/AuthContext';
 import { API_BASE_URL } from './config';
+import { useFonts } from 'expo-font';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -34,12 +38,27 @@ function MainTabs() {
             iconName = focused ? 'qr-code' : 'qr-code-outline';
           } else if (route.name === 'Leaderboard') {
             iconName = focused ? 'trophy' : 'trophy-outline';
+          } else if (route.name === 'About') {
+            iconName = focused ? 'information-circle' : 'information-circle-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#4a90e2',
-        tabBarInactiveTintColor: 'gray',
+        tabBarInactiveTintColor: '#9fb0c0',
+        tabBarStyle: {
+          backgroundColor: 'rgba(26,26,26,0.95)',
+          borderTopColor: '#333333',
+          borderTopWidth: 1,
+          paddingBottom: 8,
+          paddingTop: 8,
+          height: 70,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginBottom: 4,
+        },
         headerStyle: {
           backgroundColor: '#1a1a2e',
         },
@@ -69,18 +88,24 @@ function MainTabs() {
         component={LeaderboardScreen}
         options={{ title: 'Leaderboard' }}
       />
+      <Tab.Screen 
+        name="About" 
+        component={AboutScreen}
+        options={{ title: 'About' }}
+      />
     </Tab.Navigator>
   );
 }
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
   const [userData, setUserData] = useState(null);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  const [fontsLoaded] = useFonts({
+    Nebula: require("./fonts/Nebula-Regular.otf"),
+  });
 
   const checkAuth = async () => {
     try {
@@ -96,6 +121,16 @@ export default function App() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const authContext = {
     signIn: async (token, data) => {
@@ -118,6 +153,21 @@ export default function App() {
         console.error('Error signing out:', error);
       }
     },
+    forceLogout: async (message) => {
+      // Called when admin forces logout or session is invalidated
+      try {
+        await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('userData');
+        setUserToken(null);
+        setUserData(null);
+        // Show alert to user about forced logout
+        if (message) {
+          Alert.alert('Session Invalidated', message || 'Your session has been invalidated. Please login again.');
+        }
+      } catch (error) {
+        console.error('Error in force logout:', error);
+      }
+    },
     updateScore: (newScore) => {
       if (userData) {
         const updatedData = { ...userData, score: newScore };
@@ -128,6 +178,11 @@ export default function App() {
     userData: userData,
     userToken: userToken
   };
+
+  // Conditional returns must come after all hooks
+  if (!fontsLoaded) {
+    return null; // keep splash screen visible
+  }
 
   if (isLoading) {
     return null; // You can add a loading screen here

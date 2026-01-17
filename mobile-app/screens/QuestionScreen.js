@@ -20,7 +20,7 @@ export default function QuestionScreen({ route, navigation }) {
   const [timeLeft, setTimeLeft] = useState(parseInt(time) * 60); // Convert minutes to seconds
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { updateScore } = useContext(AuthContext);
+  const { updateScore, forceLogout } = useContext(AuthContext);
 
   useEffect(() => {
     if (timeLeft > 0 && !submitted) {
@@ -71,6 +71,11 @@ export default function QuestionScreen({ route, navigation }) {
             updateScore(scoreResponse.data.score);
           }
         } catch (e) {
+          if (e.response?.status === 403 && e.response?.data?.error?.includes('session')) {
+            if (forceLogout) {
+              await forceLogout('Your session has been invalidated.');
+            }
+          }
           console.error('Error fetching updated score:', e);
         }
         
@@ -101,9 +106,16 @@ export default function QuestionScreen({ route, navigation }) {
         );
       }
     } catch (error) {
-      const message = error.response?.data?.error || 'Error submitting answer';
-      Alert.alert('Error', message);
-      setSubmitted(false);
+      // Check if session was invalidated
+      if (error.response?.status === 403 && error.response?.data?.error?.includes('session')) {
+        if (forceLogout) {
+          await forceLogout('Your session has been invalidated.');
+        }
+      } else {
+        const message = error.response?.data?.error || 'Error submitting answer';
+        Alert.alert('Error', message);
+        setSubmitted(false);
+      }
     } finally {
       setLoading(false);
     }
