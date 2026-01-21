@@ -25,6 +25,11 @@ const qrCodeSchema = new mongoose.Schema({
     required: [true, 'Question is required'],
     trim: true
   },
+  questionLink: {
+    type: String,
+    default: '',
+    trim: true
+  },
   answer: {
     type: String,
     required: [true, 'Answer is required'],

@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
-  Image
+  Image,
+  Linking
 } from 'react-native';
 import { API_BASE_URL } from '../config';
 import axios from 'axios';
@@ -15,12 +16,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext';
 
 export default function QuestionScreen({ route, navigation }) {
-  const { question, time, points, queimagename, qrValue, qrNumber } = route.params;
+  const { question, questionLink, time, points, queimagename, qrValue, qrNumber } = route.params;
   const [answer, setAnswer] = useState('');
   const [timeLeft, setTimeLeft] = useState(parseInt(time) * 60); // Convert minutes to seconds
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { updateScore, forceLogout } = useContext(AuthContext);
+
+  useEffect(() => {
+    console.log('QuestionScreen params:', { question, questionLink, time, points, queimagename, qrValue, qrNumber });
+  }, []);
 
   useEffect(() => {
     if (timeLeft > 0 && !submitted) {
@@ -37,6 +42,18 @@ export default function QuestionScreen({ route, navigation }) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleOpenLink = async () => {
+    if (questionLink) {
+      try {
+        await Linking.openURL(questionLink);
+      } catch (error) {
+        Alert.alert('Error', 'Could not open the link. Please check the URL.');
+      }
+    } else {
+      Alert.alert('No Link', 'No question link provided');
+    }
   };
 
   const handleSubmit = async (isTimeout = false) => {
@@ -139,7 +156,21 @@ export default function QuestionScreen({ route, navigation }) {
 
         <View style={styles.questionCard}>
           <Text style={styles.questionLabel}>Question:</Text>
-          <Text style={styles.questionText}>{question}</Text>
+          {questionLink && questionLink.trim() !== '' ? (
+            <>
+              <Text style={styles.questionText}>
+                {question || 'Click the button below to open the question'}
+              </Text>
+              <TouchableOpacity
+                style={styles.linkButton}
+                onPress={handleOpenLink}
+              >
+                <Text style={styles.linkButtonText}>📖 Open Question Link</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <Text style={styles.questionText}>{question}</Text>
+          )}
         </View>
 
         {queimagename && (
@@ -248,6 +279,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     lineHeight: 26,
+  },
+  linkButton: {
+    backgroundColor: '#2a8be2',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    marginTop: 15,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#4a90e2',
+  },
+  linkButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   imageContainer: {
     backgroundColor: '#16213e',

@@ -71,6 +71,7 @@ exports.scanQR = async (req, res, next) => {
     res.json({
       success: true,
       question: qrCode.question,
+      questionLink: qrCode.questionLink,
       time: qrCode.time,
       points: qrCode.points,
       queimagename: qrCode.queimagename,

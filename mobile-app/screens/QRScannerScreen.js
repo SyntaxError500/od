@@ -10,6 +10,7 @@ import {
 import { Camera } from 'expo-camera';
 import { API_BASE_URL } from '../config';
 import { AuthContext } from '../context/AuthContext';
+import { useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -20,6 +21,7 @@ export default function QRScannerScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     (async () => {
@@ -27,6 +29,12 @@ export default function QRScannerScreen({ navigation }) {
       setHasPermission(status === 'granted');
     })();
   }, []);
+  useEffect(() => {
+    if (isFocused) {
+      setScanned(false);
+    }
+  }, [isFocused]);
+  
 
   const requestPermission = async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
@@ -64,6 +72,7 @@ export default function QRScannerScreen({ navigation }) {
         // Navigate to question screen with question data
         navigation.navigate('Question', {
           question: response.data.question,
+          questionLink: response.data.questionLink,
           time: response.data.time,
           points: response.data.points,
           queimagename: response.data.queimagename,
@@ -112,29 +121,34 @@ export default function QRScannerScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Camera
-        style={styles.camera}
-        type={Camera.Constants.Type.back}
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barCodeTypes={['qr']}
-      >
-        <View style={styles.overlay}>
-          <View style={styles.scanArea}>
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
+      {isFocused && (
+        <Camera
+          style={styles.camera}
+          type={Camera.Constants.Type.back}
+          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          barCodeTypes={['qr']}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.scanArea}>
+              <View style={[styles.corner, styles.topLeft]} />
+              <View style={[styles.corner, styles.topRight]} />
+              <View style={[styles.corner, styles.bottomLeft]} />
+              <View style={[styles.corner, styles.bottomRight]} />
+            </View>
+  
+            <Text style={styles.instructionText}>
+              Point your camera at a QR code
+            </Text>
+  
+            {loading && (
+              <Text style={styles.loadingText}>Processing...</Text>
+            )}
           </View>
-          <Text style={styles.instructionText}>
-            Point your camera at a QR code
-          </Text>
-          {loading && (
-            <Text style={styles.loadingText}>Processing...</Text>
-          )}
-        </View>
-      </Camera>
+        </Camera>
+      )}
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({

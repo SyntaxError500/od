@@ -222,6 +222,10 @@ function addQRCodeForm() {
             <textarea id="${id}_question" placeholder="Enter the question"></textarea>
         </div>
         <div class="form-group">
+            <label>Question Link (URL)</label>
+            <input type="url" id="${id}_questionLink" placeholder="https://example.com/questions/1">
+        </div>
+        <div class="form-group">
             <label>Answer</label>
             <input type="text" id="${id}_answer" placeholder="Correct answer">
         </div>
@@ -265,6 +269,7 @@ async function uploadQRCodes() {
             number: document.getElementById(id + '_number').value,
             value: document.getElementById(id + '_value').value,
             question: document.getElementById(id + '_question').value,
+            questionLink: document.getElementById(id + '_questionLink').value || '',
             answer: document.getElementById(id + '_answer').value,
             time: document.getElementById(id + '_time').value,
             points: parseInt(document.getElementById(id + '_points').value),
