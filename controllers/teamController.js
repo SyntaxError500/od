@@ -98,14 +98,15 @@ exports.submitAnswer = async (req, res, next) => {
       return res.status(404).json({ error: 'Invalid QR code' });
     }
 
-    // Check if already answered
-    const existingAnswer = await Answer.findOne({
+    // Check if already answered correctly
+    const existingCorrectAnswer = await Answer.findOne({
       teamId,
-      qrValue
+      qrValue,
+      isCorrect: true
     });
 
-    if (existingAnswer) {
-      return res.status(400).json({ error: 'Already answered this question' });
+    if (existingCorrectAnswer) {
+      return res.status(400).json({ error: 'You have already answered this question correctly' });
     }
 
     const isCorrect = answer.toLowerCase().trim() === qrCode.answer.toLowerCase().trim();

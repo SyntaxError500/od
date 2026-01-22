@@ -42,11 +42,6 @@ const answerSchema = new mongoose.Schema({
     default: Date.now,
     index: true
   }
-}, {
-  // Ensure a team can only answer each QR code once
-  indexes: [
-    { teamId: 1, qrValue: 1 }, { unique: true }
-  ]
 });
 
 module.exports = mongoose.model('Answer', answerSchema);
