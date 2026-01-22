@@ -29,8 +29,7 @@
       "package": "com.odinseye.app",
       "permissions": [
         "CAMERA",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "DETECT_SCREEN_CAPTURE"
       ]
     },
     "web": {

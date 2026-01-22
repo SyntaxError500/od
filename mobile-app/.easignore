@@ -1,0 +1,3 @@
+# Use Prebuild from app.json during EAS Build; ignore local native folders.
+android/
+ios/
