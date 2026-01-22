@@ -11,8 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#1a1a2e"
     },
-    "assetBundlePatterns": ["**/*"],
-
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.odinseye.app",
@@ -20,7 +21,6 @@
         "NSCameraUsageDescription": "This app needs access to your camera to scan QR codes."
       }
     },
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
@@ -28,20 +28,14 @@
       },
       "package": "com.odinseye.app",
       "permissions": [
-        "CAMERA"
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
-
     "web": {
       "favicon": "./assets/favicon.png"
     },
-
-    "extra": {
-      "eas": {
-        "projectId": "16003dfc-7699-45df-90fc-038cfa6e74ca"
-      }
-    },
-
     "plugins": [
       [
         "expo-camera",
@@ -63,7 +57,13 @@
             "deploymentTarget": "15.1"
           }
         }
-      ]
-    ]
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b38e6807-d3a6-48bc-be20-e65f1638a15b"
+      }
+    }
   }
 }

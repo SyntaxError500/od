@@ -5,41 +5,37 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import { Camera } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
 import { API_BASE_URL } from '../config';
 import { AuthContext } from '../context/AuthContext';
-import { useIsFocused } from '@react-navigation/native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function QRScannerScreen({ navigation }) {
   const { forceLogout } = useContext(AuthContext);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [scanned, setScanned] = useState(false);
-  const [loading, setLoading] = useState(false);
   const isFocused = useIsFocused();
 
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scanned, setScanned] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Request permission on mount
   useEffect(() => {
-    (async () => {
-      const { status } = await Camera.getCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
+    requestPermission();
   }, []);
+
+  // Reset scanner when screen refocuses
   useEffect(() => {
     if (isFocused) {
       setScanned(false);
     }
   }, [isFocused]);
-  
-
-  const requestPermission = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    setHasPermission(status === 'granted');
-  };
 
   const handleBarCodeScanned = async ({ data }) => {
     if (scanned || loading) return;
@@ -48,71 +44,74 @@ export default function QRScannerScreen({ navigation }) {
     setLoading(true);
 
     try {
-      // Parse QR code data
       let qrData;
       try {
         qrData = JSON.parse(data);
-      } catch (e) {
-        // If not JSON, treat as plain value
+      } catch {
         qrData = { value: data };
       }
 
-      const qrValue = qrData.value || qrData.QRCodes?.[Object.keys(qrData.QRCodes || {})[0]]?.value || data;
+      const qrValue =
+        qrData.value ||
+        qrData.QRCodes?.[Object.keys(qrData.QRCodes || {})[0]]?.value ||
+        data;
 
       const token = await AsyncStorage.getItem('userToken');
+
       const response = await axios.post(
         `${API_BASE_URL}/team/scan-qr`,
         { qrValue },
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (response.data.success) {
-        // Navigate to question screen with question data
         navigation.navigate('Question', {
           question: response.data.question,
           questionLink: response.data.questionLink,
           time: response.data.time,
           points: response.data.points,
           queimagename: response.data.queimagename,
-          qrValue: qrValue,
-          qrNumber: response.data.qrNumber
+          qrValue,
+          qrNumber: response.data.qrNumber,
         });
       }
     } catch (error) {
-      // Check if session was invalidated
-      if (error.response?.status === 403 && error.response?.data?.error?.includes('session')) {
-        if (forceLogout) {
-          await forceLogout('Your session has been invalidated.');
-        }
+      if (
+        error.response?.status === 403 &&
+        error.response?.data?.error?.includes('session')
+      ) {
+        await forceLogout?.('Your session has been invalidated.');
       } else {
-        const message = error.response?.data?.error || 'Error scanning QR code';
-        Alert.alert('Scan Failed', message);
+        Alert.alert(
+          'Scan Failed',
+          error.response?.data?.error || 'Error scanning QR code'
+        );
       }
     } finally {
       setLoading(false);
-      // Reset scanned after 2 seconds to allow re-scanning
       setTimeout(() => setScanned(false), 2000);
     }
   };
 
-  if (hasPermission === null) {
+  // Permission loading state
+  if (!permission) {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>Requesting camera permission...</Text>
+        <Text style={styles.text}>Checking camera permission…</Text>
       </View>
     );
   }
 
-  if (!hasPermission) {
+  // Permission denied
+  if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>Camera permission is required to scan QR codes</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={requestPermission}
-        >
+        <Text style={styles.text}>
+          Camera permission is required to scan QR codes
+        </Text>
+        <TouchableOpacity style={styles.button} onPress={requestPermission}>
           <Text style={styles.buttonText}>Grant Permission</Text>
         </TouchableOpacity>
       </View>
@@ -122,11 +121,10 @@ export default function QRScannerScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {isFocused && (
-        <Camera
+        <CameraView
           style={styles.camera}
-          type={Camera.Constants.Type.back}
-          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          barCodeTypes={['qr']}
+          barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         >
           <View style={styles.overlay}>
             <View style={styles.scanArea}>
@@ -135,20 +133,17 @@ export default function QRScannerScreen({ navigation }) {
               <View style={[styles.corner, styles.bottomLeft]} />
               <View style={[styles.corner, styles.bottomRight]} />
             </View>
-  
+
             <Text style={styles.instructionText}>
               Point your camera at a QR code
             </Text>
-  
-            {loading && (
-              <Text style={styles.loadingText}>Processing...</Text>
-            )}
+
+            {loading && <Text style={styles.loadingText}>Processing…</Text>}
           </View>
-        </Camera>
+        </CameraView>
       )}
     </View>
   );
-  
 }
 
 const styles = StyleSheet.create({
@@ -161,7 +156,6 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -235,5 +229,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
-
