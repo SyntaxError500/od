@@ -55,15 +55,15 @@ exports.scanQR = async (req, res, next) => {
     }
 
     // Check if team already scanned this QR
-    const existingAnswer = await Answer.findOne({
+   const existingCorrectAnswer = await Answer.findOne({
       teamId,
-      qrValue
+      qrValue,
+      isCorrect: true
     });
 
-    if (existingAnswer) {
-      return res.status(400).json({ error: 'QR code already scanned by your team' });
+    if (existingCorrectAnswer) {
+      return res.status(400).json({ error: 'You have already answered this question correctly' });
     }
-
     // Increment scan count
     qrCode.scans += 1;
     await qrCode.save();
