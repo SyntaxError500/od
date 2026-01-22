@@ -133,6 +133,35 @@ exports.uploadQRCodes = async (req, res, next) => {
   }
 };
 
+// Admin resets a team's password
+exports.updateTeamPassword = async (req, res, next) => {
+  try {
+    const { teamId } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+
+    const team = await Team.findById(teamId).select('+password');
+
+    if (!team) {
+      return res.status(404).json({ error: 'Team not found' });
+    }
+
+    team.password = newPassword;
+    team.activeToken = null; // Invalidate active sessions after password reset
+    await team.save();
+
+    res.json({
+      success: true,
+      message: 'Team password updated successfully and active sessions revoked'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Get leaderboard (admin view)
 exports.getLeaderboard = async (req, res, next) => {
   try {

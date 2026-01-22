@@ -129,14 +129,53 @@ async function loadAllTeams() {
                     <p>Leader: ${team.leaderName} | Score: ${team.score} points</p>
                     <p>Status: ${team.activeToken ? '🟢 Logged In' : '🔴 Logged Out'}</p>
                 </div>
-                <button class="btn btn-logout-team" data-team-id="${team._id}" data-team-name="${team.teamName}">Force Logout</button>
+                <div class="team-actions">
+                    <button class="btn btn-logout-team" data-team-id="${team._id}" data-team-name="${team.teamName}">Force Logout</button>
+                    <div class="password-reset">
+                        <input type="password" class="new-password" placeholder="New password" minlength="6">
+                        <button class="btn btn-update-pass" data-team-id="${team._id}" data-team-name="${team.teamName}">Update Password</button>
+                    </div>
+                </div>
             `;
             const logoutBtn = card.querySelector('.btn-logout-team');
             logoutBtn.addEventListener('click', () => forceLogoutTeam(team._id, team.teamName));
+
+            const updateBtn = card.querySelector('.btn-update-pass');
+            const passwordInput = card.querySelector('.new-password');
+            updateBtn.addEventListener('click', () => changeTeamPassword(team._id, team.teamName, passwordInput.value));
             listEl.appendChild(card);
         });
     } catch (error) {
         showMessage('Error loading teams', 'error');
+    }
+}
+
+async function changeTeamPassword(teamId, teamName, newPassword) {
+    if (!newPassword || newPassword.length < 6) {
+        showMessage('Password must be at least 6 characters', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin/teams/${teamId}/password`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ newPassword })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showMessage(`Password updated for ${teamName}. Team must re-login.`, 'success');
+            loadAllTeams();
+        } else {
+            showMessage(data.error || 'Error updating password', 'error');
+        }
+    } catch (error) {
+        showMessage('Error updating password: ' + error.message, 'error');
     }
 }
 

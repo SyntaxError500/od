@@ -7,6 +7,7 @@ const {
   getAllTeams,
   uploadLocationHints,
   uploadQRCodes,
+  updateTeamPassword,
   getLeaderboard
 } = require('../controllers/adminController');
 
@@ -17,6 +18,7 @@ router.use(verifyAdmin);
 router.get('/pending-teams', getPendingTeams);
 router.post('/approve-team/:teamId', approveTeam);
 router.get('/teams', getAllTeams);
+router.patch('/teams/:teamId/password', updateTeamPassword);
 router.post('/location-hints', uploadLocationHints);
 router.post('/qrcodes', uploadQRCodes);
 router.get('/leaderboard', getLeaderboard);
