@@ -113,7 +113,7 @@ export default function QuestionScreen({ route, navigation }) {
           'Incorrect',
           isTimeout
             ? 'Time ran out!'
-            : `Wrong answer. The correct answer was: ${response.data.correctAnswer}`,
+            : `Wrong answer.`,
           [
             {
               text: 'OK',
